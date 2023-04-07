@@ -12,7 +12,7 @@ import { SunburstGraphComponent } from './sunburst-graph/sunburst-graph.componen
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
