@@ -1,3 +1,5 @@
 <div id="sunburst" style="text-align: center"></div>
-
+<div *ngIf="isVisible">
+    <app-ngx-dialog  (onClose)="closeDialog()" [title]="childTitleText"/>
+</div>
 

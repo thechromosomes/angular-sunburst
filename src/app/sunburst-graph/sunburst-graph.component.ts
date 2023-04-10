@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import * as d3 from "d3v4";
 @Component({
   selector: "app-sunburst-graph",
@@ -6,6 +6,17 @@ import * as d3 from "d3v4";
   styleUrls: ["./sunburst-graph.component.css"],
 })
 export class SunburstGraphComponent implements OnInit {
+  @Input() isVisible: boolean = false;
+  public childTitleText = ''
+
+  showDialog() {
+    this.isVisible = true;
+  }
+
+  closeDialog() {
+    this.isVisible = false;
+  }
+
   ngOnInit(): void {
     this.renderSunburstGraph();
   }
@@ -156,19 +167,19 @@ export class SunburstGraphComponent implements OnInit {
                   children: [
                     {
                       name: "s21-3",
-                      size: 3938,
+                      size: 1000,
                     },
                     {
                       name: "sg2-3",
-                      size: 3812,
+                      size: 1000,
                     },
                     {
                       name: "sg3-3",
-                      size: 6714,
+                      size: 1000,
                     },
                     {
                       name: "sg4-3",
-                      size: 743,
+                      size: 1000,
                     },
                   ],
                 },
@@ -191,7 +202,7 @@ export class SunburstGraphComponent implements OnInit {
     var y = d3.scaleLinear().range([0, radius]);
 
     const color = d3.scaleOrdinal(
-      d3.quantize(d3.interpolateRainbow, rowData.children.length + 1)
+      d3.quantize(d3.interpolateRainbow, rowData.children.length + 5)
     );
 
     var partition = d3.partition();
@@ -200,6 +211,7 @@ export class SunburstGraphComponent implements OnInit {
     tooltip.append("div").attr("class", "label");
     tooltip.append("div").attr("class", "count");
     tooltip.append("div").attr("class", "percent");
+    tooltip.append("div").attr("class", "linkButton");
 
     var svg = d3
       .select("#sunburst")
@@ -249,18 +261,11 @@ export class SunburstGraphComponent implements OnInit {
           .selectAll(".node")
           .append("path")
           .attr("d", arc)
-          // .style('fill', function (d) {
-          //   return color(d.depth);
-          // })
           .attr("fill", (d) => {
             while (d.depth > 1) d = d.parent;
             return color(d.data.name);
           })
-          // .style("stroke", "#FFFFFF")
           .on("click", clickHandler)
-          .on("mouseover", mouseOverHandler)
-          .on("mouseout", mouseOutHandler)
-          .on("mousemove", mouseMoveHandler);
 
         text = svg
           .selectAll(".node")
@@ -276,7 +281,7 @@ export class SunburstGraphComponent implements OnInit {
           .text(function (d) {
             return d.data.name;
           })
-          .on("click", clickHandler)
+          .on("click", clickTextHandler)
           .on("mouseover", mouseOverHandler)
           .on("mouseout", mouseOutHandler)
           .on("mousemove", mouseMoveHandler);
@@ -329,14 +334,19 @@ export class SunburstGraphComponent implements OnInit {
         });
     }
 
+    let clickTextHandler = (data) => {
+      this.childTitleText =  data.data.name,
+      this.isVisible = true;
+    };
     function mouseOverHandler(d) {
       var total = d?.parent?.value;
-      var percent = Math.round((1000 * d.value) / total) / 10; // calculate percent
-      tooltip.select(".label").html(d.data.name); // set current label
-      tooltip.select(".count").html(d.value); // set current count
-      tooltip.select(".percent").html(percent + "%"); // set percent calculated above
-      tooltip.style("display", "block"); // set display
-    }
+      var percent = Math.round((1000 * d.value) / total) / 10; 
+      tooltip.select(".label").html(d.data.name); 
+      tooltip.select(".count").html(d.value); 
+      tooltip.select(".percent").html(percent + "%");
+      tooltip.select(".linkButton").html('click to show graph');
+
+      tooltip.style("display", "block");    }
     function mouseOutHandler() {
       // when mouse leaves div
       tooltip.style("display", "none"); // hide tooltip for that element
